@@ -79,20 +79,18 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             responseJson.put("message", message);
             receiverSession.sendMessage(new TextMessage(responseJson.toString()));
 
-        } else { // Receiver is not connected
+        } else {  // Receiver is not connected
             System.out.println("Receiver is not connected " + receiver);
-            if (!sendNotification(message, sender, receiver)){
-                storeMessage(message, sender, receiver);
-            }
-
+            storeMessage(message, sender, receiver);        // Save message
+            sendNotification(message, sender, receiver);    // Send notification
         }
     }
 
-    private boolean sendNotification(String message, String sender, String receiver){
-        return false;
+    private void sendNotification(String message, String sender, String receiver){
     }
 
     private void storeMessage(String message, String sender, String receiver){
+        System.out.println("Storing message from " + sender + " to " + receiver + " : " + message);
         User senderEntity = userService.getUserByUsername(sender);
         User receiverEntity = userService.getUserByUsername(receiver);
         if (senderEntity != null && receiverEntity != null){
