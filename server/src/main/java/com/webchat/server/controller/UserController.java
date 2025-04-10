@@ -98,14 +98,10 @@ public class UserController {
 
     @GetMapping("exists")
     public ResponseEntity<Void> doesUserExists(@RequestParam("username") String username){
-        if (userService.doesUserExistsWithUsername(username)){
+        UserDTO user = userService.getUserByUsernameDTO(username).orElseThrow(NotFoundException::new);
+        if (user != null){
             return new ResponseEntity<>(HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }
-
-
-
-
-
 }
