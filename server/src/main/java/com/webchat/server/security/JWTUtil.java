@@ -1,5 +1,6 @@
 package com.webchat.server.security;
 
+import com.webchat.server.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
@@ -26,9 +27,10 @@ public class JWTUtil {
     }
 
     // Generate JWT token using UUID userId
-    public String generateToken(UUID userId) {
+    public String generateToken(UUID userId, int jwtTokenCode) {
         Map<String, Object> claims = new HashMap<>();
         claims.put("userId", userId); // Store UUID in claims
+        claims.put("jwtCode", jwtTokenCode);
         return createToken(claims, userId);
     }
 
@@ -36,7 +38,7 @@ public class JWTUtil {
     private String createToken(Map<String, Object> claims, UUID userId) {
         return Jwts.builder()
                 .claims(claims)
-                .subject(userId.toString())  // Store UUID as String in the subject
+                .subject(userId.toString())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))  // 10 hours
                 .signWith(key) // Updated to use byte[] for signing
@@ -53,6 +55,11 @@ public class JWTUtil {
         return extractClaim(token, Claims::getExpiration);
     }
 
+    public int extractJwtCode(String token) {
+        return (int) extractClaim(token, claims -> claims.get("jwtCode"));
+    }
+
+
     // Extract claims from the token
     private <T> T extractClaim(String token, ClaimsResolver<T> claimsResolver) {
         final Claims claims = extractAllClaims(token);
@@ -68,7 +75,7 @@ public class JWTUtil {
     }
 
     // Check if the token is expired
-    private boolean isTokenExpired(String token) {
+    public boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
@@ -77,35 +84,13 @@ public class JWTUtil {
         return (userId.equals(extractUserId(token)) && !isTokenExpired(token));
     }
 
+    public boolean validateTokenUser(String token, User user) {
+        return (!isTokenExpired(token) && user.getJwtTokenCode() == extractJwtCode(token));
+    }
+
     // Functional interface to extract a claim
     @FunctionalInterface
     interface ClaimsResolver<T> {
         T resolve(Claims claims);
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

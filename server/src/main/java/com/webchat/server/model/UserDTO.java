@@ -17,7 +17,7 @@ public class UserDTO {
 
     private Integer version;
 
-    private Integer jwt_token_code;
+    private Integer jwtTokenCode;
 
     private String username;
 

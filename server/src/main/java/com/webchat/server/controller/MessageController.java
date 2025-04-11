@@ -3,6 +3,7 @@ package com.webchat.server.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.webchat.server.entity.User;
 import com.webchat.server.model.MessageDTO;
+import com.webchat.server.security.SecurityUtils;
 import com.webchat.server.service.MessageService;
 import com.webchat.server.service.UserService;
 import lombok.RequiredArgsConstructor;
@@ -16,8 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
-import static com.webchat.server.controller.UserController.getUserFromToken;
-
 @Slf4j
 @RequiredArgsConstructor
 @RestController
@@ -30,7 +29,8 @@ public class MessageController {
     @GetMapping("unreceived-messages")
     public Map<String, List<List<String>>> retrieveUnreceivedMessages(){
 
-        User user = getUserFromToken(userService);
+
+        User user = SecurityUtils.getAuthenticatedUser();
 
         ObjectMapper objectMapper = new ObjectMapper();
 

@@ -32,7 +32,7 @@ public class User {
     @Version
     private Integer version;
 
-    private Integer jwt_token_code;
+    private Integer jwtTokenCode;
 
     @Column(length = 36, columnDefinition = "varchar(36)", updatable = false, nullable = false, unique = true)
     private String username;

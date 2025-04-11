@@ -22,6 +22,10 @@ public interface UserService {
 
     Optional<UserDTO> updatePassword(User user, String password);
 
+    void updateFirstLastName(User user, UserDTO userDTO);
+
+    UserDTO mapUserToUserDTO(User user);
+
     Optional<UserDTO> getUserById(UUID id);
 
     boolean doesUserExistsWithUsername(String username);

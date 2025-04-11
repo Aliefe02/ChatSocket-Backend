@@ -9,6 +9,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.Optional;
+import java.util.Random;
 import java.util.UUID;
 
 @Service
@@ -43,6 +44,8 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO register(UserDTO user){
+        Random random = new Random();
+        user.setJwtTokenCode(100000 + random.nextInt(900000));
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userMapper.userToUserDTO(userRepository.save(userMapper.userDTOToUser(user)));
     }
@@ -55,7 +58,25 @@ public class UserServiceImpl implements UserService {
     @Override
     public Optional<UserDTO> updatePassword(User user, String password) {
         user.setPassword(passwordEncoder.encode(password));
+        Random random = new Random();
+        int newCode;
+        do {
+            newCode = 100000 + random.nextInt(900000);
+        } while (user.getJwtTokenCode() == newCode);
+        user.setJwtTokenCode(newCode);
         return Optional.of(userMapper.userToUserDTO(userRepository.save(user)));
+    }
+
+    @Override
+    public void updateFirstLastName(User user, UserDTO userDTO) {
+        user.setFirstName(userDTO.getFirstName());
+        user.setLastName(userDTO.getLastName());
+        userRepository.save(user);
+    }
+
+    @Override
+    public UserDTO mapUserToUserDTO(User user) {
+        return userMapper.userToUserDTO(user);
     }
 
     @Override

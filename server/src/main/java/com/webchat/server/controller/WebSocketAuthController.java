@@ -1,6 +1,8 @@
 package com.webchat.server.controller;
 
+import com.webchat.server.entity.User;
 import com.webchat.server.model.UserDTO;
+import com.webchat.server.security.SecurityUtils;
 import com.webchat.server.service.UserService;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,8 +17,6 @@ import org.springframework.web.socket.server.support.DefaultHandshakeHandler;
 import org.springframework.web.socket.server.support.WebSocketHttpRequestHandler;
 
 import java.io.IOException;
-
-import static com.webchat.server.controller.UserController.getUserDTOFromTokenString;
 
 @RestController
 @RequestMapping("/ws/")
@@ -35,7 +35,9 @@ public class WebSocketAuthController {
             return;
         }
 
-        UserDTO user = getUserDTOFromTokenString(userService, token);
+
+        User user = SecurityUtils.getAuthenticatedUser();
+        UserDTO userDTO = userService.mapUserToUserDTO(user);
 
         if (user == null) {
             response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Invalid Token");

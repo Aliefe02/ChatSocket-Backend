@@ -1,5 +1,6 @@
 package com.webchat.server.security;
 
+import com.webchat.server.entity.User;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.authentication.AbstractAuthenticationToken;
@@ -9,12 +10,13 @@ import java.util.UUID;
 @Getter
 @Setter
 public class CustomAuthenticationToken extends AbstractAuthenticationToken {
-
+    private final Object principal;
     private final UUID userId;
 
-    public CustomAuthenticationToken(UUID userId) {
+    public CustomAuthenticationToken(User user) {
         super(null);
-        this.userId = userId;
+        this.principal = user;
+        this.userId = user.getId();
         setAuthenticated(true);  // Token is considered authenticated if valid
     }
 
@@ -25,6 +27,6 @@ public class CustomAuthenticationToken extends AbstractAuthenticationToken {
 
     @Override
     public Object getPrincipal() {
-        return userId;  // The user ID is the principal
+        return principal;  // The user ID is the principal
     }
 }

@@ -16,6 +16,8 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 @Slf4j
@@ -27,22 +29,6 @@ public class UserController {
     private final UserService userService;
     private final JWTUtil jwtUtil;
     private final BCryptPasswordEncoder passwordEncoder;
-
-    public static User getUserFromToken(UserService userService){
-        return userService.getUserEntityById(SecurityUtils.getAuthenticatedUserId()).orElseThrow(UnauthorizedException::new);
-    }
-
-    public static User getUserFromTokenString(UserService userService, String token) {
-        UUID userId = SecurityUtils.getUserIdFromToken(token, new JWTUtil());
-
-        if (userId == null) {
-            throw new UnauthorizedException("Invalid or expired token");
-        }
-
-        return userService.getUserEntityById(userId)
-                .orElseThrow(() -> new UnauthorizedException("User not found"));
-
-    }
 
     public static UserDTO getUserDTOFromTokenString(UserService userService, String token) {
         UUID userId = SecurityUtils.getUserIdFromToken(token, new JWTUtil());
@@ -56,7 +42,6 @@ public class UserController {
 
     }
 
-
     public static UserDTO getUserDTOFromToken(UserService userService){
         return userService.getUserById(SecurityUtils.getAuthenticatedUserId()).orElseThrow(NotFoundException::new);
     }
@@ -66,7 +51,7 @@ public class UserController {
         UserDTO user = userService.getUserByUsernameDTO(userDTO.getUsername()).orElseThrow(() -> new BadCredentialsException("User not found"));
 
         if (userService.checkPassword(userDTO, user)){
-            return jwtUtil.generateToken(user.getId());
+            return jwtUtil.generateToken(user.getId(), user.getJwtTokenCode());
         }
         throw new BadCredentialsException("Password incorrect");
     }
@@ -75,32 +60,45 @@ public class UserController {
     public ResponseEntity<String> register(@Validated @RequestBody UserDTO userDTO){
         UserDTO savedUser = userService.register(userDTO);
 
-        String token = jwtUtil.generateToken(savedUser.getId());
+        String token = jwtUtil.generateToken(savedUser.getId(), savedUser.getJwtTokenCode());
 
         return new ResponseEntity<>(token, HttpStatus.CREATED);
     }
 
     @PutMapping("update-password")
-    public ResponseEntity<Void> updatePassword(@RequestBody UserDTO userDTO){
-        User user = getUserFromToken(userService);
+    public String updatePassword(@RequestBody UserDTO userDTO){
+        User user = SecurityUtils.getAuthenticatedUser();
 
         userService.updatePassword(user, userDTO.getPassword()).orElseThrow(NotFoundException::new);
 
-        return new ResponseEntity<>(HttpStatus.OK);
+        return jwtUtil.generateToken(user.getId(), user.getJwtTokenCode());
         }
+
+    @PutMapping("update-name")
+    public ResponseEntity<Void> updateFirstLastName(@RequestBody UserDTO userDTO){
+        User user =  SecurityUtils.getAuthenticatedUser();
+        userService.updateFirstLastName(user, userDTO);
+        return new ResponseEntity<>(HttpStatus.OK);
+    }
 
     @GetMapping("details")
     public UserDTO getUserDetails(){
-        UserDTO userDTO = getUserDTOFromToken(userService);
+        User user = SecurityUtils.getAuthenticatedUser();
+        UserDTO userDTO = userService.mapUserToUserDTO(user);
         userDTO.setPassword(null);
+        userDTO.setJwtTokenCode(null);
         return userDTO;
     }
 
     @GetMapping("exists")
-    public ResponseEntity<Void> doesUserExists(@RequestParam("username") String username){
+    public ResponseEntity<Map<String, String>> doesUserExists(@RequestParam("username") String username){
         UserDTO user = userService.getUserByUsernameDTO(username).orElseThrow(NotFoundException::new);
         if (user != null){
-            return new ResponseEntity<>(HttpStatus.OK);
+            Map<String, String> response = new HashMap<>();
+            response.put("username", user.getUsername());
+            response.put("publicKey", "publicKeyTemp");
+
+            return new ResponseEntity<>(response, HttpStatus.OK);
         }
         return new ResponseEntity<>(HttpStatus.NOT_FOUND);
     }

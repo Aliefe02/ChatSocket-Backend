@@ -1,6 +1,7 @@
 package com.webchat.server.config;
 
 
+import com.webchat.server.repository.UserRepository;
 import com.webchat.server.security.JWTAuthenticationFilter;
 import com.webchat.server.security.JWTUtil;
 import org.springframework.context.annotation.Bean;
@@ -17,10 +18,12 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 @EnableWebSecurity
 public class SecurityConfig {
 
-    private final JWTUtil jwtUtil;  // Inject JWTUtil
+    private final JWTUtil jwtUtil;
+    private final UserRepository userRepository;
 
-    public SecurityConfig(JWTUtil jwtUtil) {
+    public SecurityConfig(JWTUtil jwtUtil, UserRepository userRepository) {
         this.jwtUtil = jwtUtil;
+        this.userRepository = userRepository;
     }
 
     @Bean
@@ -41,7 +44,7 @@ public class SecurityConfig {
                 .csrf(csrf -> csrf.disable())  // Disable CSRF since we use JWT
 
                 // Add JWT filter here
-                .addFilterBefore(new JWTAuthenticationFilter(jwtUtil), UsernamePasswordAuthenticationFilter.class);
+                .addFilterBefore(new JWTAuthenticationFilter(jwtUtil, userRepository), UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
     }
