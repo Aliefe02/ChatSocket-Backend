@@ -34,6 +34,7 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
+                .securityMatcher("/api/**")
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/api/user/login", "/api/user/register", "/ws/chat").permitAll()  // Permit these endpoints without authentication
                         .anyRequest().authenticated()  // All other requests need to be authenticated
