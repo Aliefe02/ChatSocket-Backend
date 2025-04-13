@@ -12,17 +12,11 @@
     <a href="/">ChatSocket</a>
 </div>
 
+<!-- Main Content -->
 <div class="main-content">
     <div class="centered-container">
-        <h1>Delete Account</h1>
-        <div class="confirmation-section">
-            <p th:text="${username} + ', do you want to proceed with deleting your account?'"></p>
-
-            <form th:action="@{/delete-account}" method="post">
-                <input type="hidden" name="token" th:value="${token}" />
-                <button type="submit" class="delete-button">Delete</button>
-            </form>
-        </div>
+        <h1>Account deleted</h1>
+        <p class="description-text">Your account has been successfully deleted.</p>
     </div>
 </div>
 

@@ -12,17 +12,28 @@
     <a href="/">ChatSocket</a>
 </div>
 
+<!-- Main Content -->
 <div class="main-content">
     <div class="centered-container">
-        <h1>Delete Account</h1>
-        <div class="confirmation-section">
-            <p th:text="${username} + ', do you want to proceed with deleting your account?'"></p>
+        <h1>Request Account Deletion</h1>
+        <p class="description-text">To request account deletion, please enter your username or email below.</p>
 
-            <form th:action="@{/delete-account}" method="post">
-                <input type="hidden" name="token" th:value="${token}" />
-                <button type="submit" class="delete-button">Delete</button>
-            </form>
+        <!-- Display error message if it exists -->
+        <div th:if="${error}" class="error-message" style="color: red; margin-bottom: 10px;">
+            <p th:text="${error}"></p>
         </div>
+
+        <!-- Request Form -->
+        <form th:action="@{/delete-account-request}" method="post">
+            <div class="input-container">
+                <label for="username"></label>
+                <input type="text" id="username" name="username" placeholder="Enter your username or email here..." required>
+            </div>
+
+            <div class="button-container">
+                <button type="submit">Request Deletion</button>
+            </div>
+        </form>
     </div>
 </div>
 

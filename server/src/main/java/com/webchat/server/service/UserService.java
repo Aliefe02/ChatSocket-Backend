@@ -16,6 +16,8 @@ public interface UserService {
 
     User getUserByUsername(String username);
 
+    User getUserByEmail(String email);
+
     UserDTO register(UserDTO user);
 
     boolean checkPassword(UserDTO user, UserDTO savedUser);
@@ -29,4 +31,9 @@ public interface UserService {
     Optional<UserDTO> getUserById(UUID id);
 
     boolean doesUserExistsWithUsername(String username);
+
+    boolean sendAccountDeleteRequest(User user);
+
+    boolean deleteAccount(String token);
+
 }

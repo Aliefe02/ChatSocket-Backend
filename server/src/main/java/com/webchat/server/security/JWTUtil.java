@@ -29,7 +29,7 @@ public class JWTUtil {
     // Generate JWT token using UUID userId
     public String generateToken(UUID userId, int jwtTokenCode) {
         Map<String, Object> claims = new HashMap<>();
-        claims.put("userId", userId); // Store UUID in claims
+        claims.put("userId", userId);
         claims.put("jwtCode", jwtTokenCode);
         return createToken(claims, userId);
     }
@@ -42,6 +42,19 @@ public class JWTUtil {
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + 1000 * 60 * 60 * 10))  // 10 hours
                 .signWith(key) // Updated to use byte[] for signing
+                .compact();
+    }
+
+    // Create token with short expiration time
+    public String createTokenShort(Map<String, Object> claims, UUID userId) {
+        long expirationTime = 15 * 60 * 1000; // 15 minutes in milliseconds
+
+        return Jwts.builder()
+                .claims(claims)
+                .subject(userId.toString())
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + expirationTime))
+                .signWith(key)
                 .compact();
     }
 
@@ -69,9 +82,9 @@ public class JWTUtil {
     // Extract all claims from the token
     private Claims extractAllClaims(String token) {
         JwtParser jwtParser = Jwts.parser() // Using Jwts.parser() instead of parserBuilder
-                .setSigningKey(key) // Updated to use byte[] for signing key
+                .verifyWith(key) // Updated to use byte[] for signing key
                 .build();
-        return jwtParser.parseClaimsJws(token).getBody(); // `getBody()` is still available but check deprecation warnings
+        return jwtParser.parseSignedClaims(token).getPayload(); // `getBody()` is still available but check deprecation warnings
     }
 
     // Check if the token is expired

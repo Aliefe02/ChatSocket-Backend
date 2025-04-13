@@ -4,6 +4,12 @@ Java Spring Boot backend for ChatSocket mobile messaging application
 
 ## Changelog
 
+### Version 0.2
+- **Frontend Added**: Improved landing page, privacy policy and usage agreement pages and account deletion pages are added.
+- **Delete Account**: Now users can request their account to be deleted on the /delete-account-request page. An email is sent containing the url to complete deletion. This url sends users to a page with a token, upon clicking on the delete button on the page, user account and messages on the server (if any) are deleted.
+- **Email Service**: Email service is added. This service can send emails using google's gmail backend. It can send raw text bodies or html bodies.
+
+
 ### Version 0.1.4
 - **Templates Added**: Landing page added.
 
